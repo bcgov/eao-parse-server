@@ -218,6 +218,12 @@
       "displayName": "Parse API route",
       "description": "Configure Parse API route",
       "value": "/parse"
+    },
+    {
+      "name": "SERVER_URL",
+      "displayName": "Parse Web Facing URL",
+      "description": "The endpoint to which parse URL is posted.",
+      "value": "https://parse-ssl.esm-dev.pathfinder.gov.bc.ca/parse"
     }
   ]
 }
