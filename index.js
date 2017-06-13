@@ -60,13 +60,14 @@ app.use('/public', express.static(path.join(__dirname, '/public')));
 // Serve the Parse API on the /parse URL prefix
 app.use(mountPath, api);
 // Dashboard
-app.use("/dashboard", dashboard);
+app.use("/parse-dashboard", dashboard);
 
 // Parse Server plays nicely with the rest of your web routes
-app.get('/', function(req, res) {
-  res.status(200).send('Your installation of parse-server is complete!');
-});
-
+if (!isProduction) {
+  app.get('/', function(req, res) {
+    res.status(200).send('Your installation of parse-server is complete!');
+  });
+}
 
 
 // There will be a test page available on the /test path of your server url
