@@ -11,6 +11,7 @@ var serverURL             = process.env.SERVER_URL || 'http://localhost:1337/par
 var appId                 = process.env.APP_ID || 'myAppId';
 var masterKey             = process.env.MASTER_KEY || 'abc123';
 var appName               = process.env.PARSE_APP_NAME || 'parse-server';
+var maxUploadSize         = process.env.MAX_UPLOAD_SIZE || '20mb';
 var javascriptKey         = process.env.JAVASCRIPT_KEY;
 var userJsonString        = process.env.USERS_JSON || '[{"user": "test", "pass": "test"}]';
 
@@ -26,6 +27,7 @@ var api = new ParseServer({
   databaseURI: databaseUri,
   appId: appId,
   masterKey: masterKey,
+  maxUploadSize: maxUploadSize,
   serverURL: serverURL,
   liveQuery: {
     classNames: ["Posts", "Comments"] // List of classes to support for query subscriptions
