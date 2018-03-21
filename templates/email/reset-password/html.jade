@@ -1,0 +1,11 @@
+doctype html
+html(lang='en')
+  head
+    title Parse Server Example
+  body
+    p Hi #{user.get('firstname')},
+    p You requested a password reset for #{appName}.
+    p
+      | Click here to reset it:
+      br
+      a(href='#{link}') #{link}
