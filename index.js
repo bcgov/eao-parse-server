@@ -34,8 +34,6 @@ if (!databaseUri) {
     console.log('DATABASE_URI not specified, falling back to localhost.');
 }
 
-console.log(mailServer);
-
 var api = new ParseServer({
     appName: appName,
     databaseURI: databaseUri,
