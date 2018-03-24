@@ -1,53 +1,88 @@
-var express               = require('express');
-var ParseServer           = require('parse-server').ParseServer;
-var ParseDashboard        = require('parse-dashboard');
-var path                  = require('path');
+var express = require('express');
+var ParseServer = require('parse-server').ParseServer;
+var ParseDashboard = require('parse-dashboard');
+var path = require('path');
 
-var port                  = process.env.PORT || 1337;
-var databaseUri           = process.env.DATABASE_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/parse';
-var mountPath             = process.env.PARSE_MOUNT || '/parse';
-var isProduction          = process.env.PRODUCTION_ENV || false;
-var serverURL             = process.env.SERVER_URL || 'http://localhost:1337/parse';
-var appId                 = process.env.APP_ID || 'myAppId';
-var masterKey             = process.env.MASTER_KEY || 'abc123';
-var appName               = process.env.PARSE_APP_NAME || 'parse-server';
-var maxUploadSize         = process.env.MAX_UPLOAD_SIZE || '20mb';
-var javascriptKey         = process.env.JAVASCRIPT_KEY;
-var userJsonString        = process.env.USERS_JSON || '[{"user": "test", "pass": "test"}]';
+var port = process.env.PORT || 1337;
+var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/parse';
+var mountPath = process.env.PARSE_MOUNT || '/parse';
+var isProduction = process.env.PRODUCTION_ENV || false;
+var serverURL = process.env.SERVER_URL || 'http://localhost:1337/parse';
+var publicServerURL = process.env.PUBLIC_SERVER_URL || 'http://localhost:1337/parse';
+var appId = process.env.APP_ID || 'myAppId';
+var masterKey = process.env.MASTER_KEY || 'abc123';
+var appName = process.env.PARSE_APP_NAME || 'parse-server';
+var maxUploadSize = process.env.MAX_UPLOAD_SIZE || '20mb';
+var javascriptKey = process.env.JAVASCRIPT_KEY || 'javascript_key';
+var userJsonString = process.env.USERS_JSON || '[{"user": "test", "pass": "test"}]';
 
-var userArray             = JSON.parse(userJsonString);
-var allowInsecureHttp     = true;
-var useEncryptedPassword  = false;
+var mailServer = {
+    fromAddress: process.env.FROM_ADDRESS || 'no-reply@eao.gov.bc.ca',
+    user: process.env.MAIL_SERVER_USER,
+    password: process.env.MAIL_SERVER_PASSWORD,
+    host: process.env.MAIL_SERVER_HOST,
+    port: process.env.MAIL_SERVER_PORT || 25,
+    isSSL: process.env.MAIL_SERVER_SSL || false,
+    emailField: process.env.EMAIL_FIELD || 'email',
+}
+
+var userArray = JSON.parse(userJsonString);
+var allowInsecureHttp = true;
+var useEncryptedPassword = false;
 
 if (!databaseUri) {
-  console.log('DATABASE_URI not specified, falling back to localhost.');
+    console.log('DATABASE_URI not specified, falling back to localhost.');
 }
 
 var api = new ParseServer({
-  databaseURI: databaseUri,
-  appId: appId,
-  masterKey: masterKey,
-  maxUploadSize: maxUploadSize,
-  serverURL: serverURL,
-  liveQuery: {
-    classNames: ["Posts", "Comments"] // List of classes to support for query subscriptions
-  }
+    appName: appName,
+    databaseURI: databaseUri,
+    appId: appId,
+    masterKey: masterKey,
+    maxUploadSize: maxUploadSize,
+    serverURL: serverURL,
+    publicServerURL: publicServerURL,
+    liveQuery: {
+        classNames: ["Posts", "Comments"] // List of classes to support for query subscriptions
+    },
+    emailAdapter: {
+        module: "simple-parse-smtp-adapter",
+        options: {
+            fromAddress: mailServer.fromAddress,
+            user: mailServer.user,
+            password: mailServer.password,
+            host: mailServer.host,
+            isSSL: mailServer.isSSL, //True or false if you are using ssl 
+            port: mailServer.port, //SSL port or another port 
+            //Somtimes the user email is not in the 'email' field, the email is search first in 
+            //email field, then in username field, if you have the user email in another field 
+            //You can specify here 
+            emailField: mailServer.emailField,
+            templates: {
+                //This template is used only for reset password email 
+                resetPassword: {
+                    //Path to your template 
+                    template: __dirname + '/templates/email/reset-password',
+                    //Subject for this email 
+                    subject: 'Reset your password'
+                }
+            }
+        }
+    }
 });
 
 // setup the dashboard
 var dashboard = new ParseDashboard({
-  "apps": [
-    {
-      "serverURL": serverURL,
-      "appId": appId,
-      "masterKey": masterKey,
-      "appName": appName,
-      "production": isProduction,
-      "javascriptKey": javascriptKey
-    }
-  ],
-  "users": userArray,
-  "useEncryptedPassword": useEncryptedPassword
+    "apps": [{
+        "serverURL": serverURL,
+        "appId": appId,
+        "masterKey": masterKey,
+        "appName": appName,
+        "production": isProduction,
+        "javascriptKey": javascriptKey
+    }],
+    "users": userArray,
+    "useEncryptedPassword": useEncryptedPassword
 }, { allowInsecureHTTP: allowInsecureHttp });
 
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
@@ -66,18 +101,18 @@ app.use("/parse-dashboard", dashboard);
 
 // Parse Server plays nicely with the rest of your web routes
 if (!isProduction) {
-  app.get('/', function(req, res) {
-    res.status(200).send('Your installation of parse-server is complete!');
-  });
+    app.get('/', function(req, res) {
+        res.status(200).send('Your installation of parse-server is complete!');
+    });
 }
 
 
 // There will be a test page available on the /test path of your server url
 // Remove this before launching your app
 if (!isProduction) {
-  app.get('/test', function(req, res) {
-    res.sendFile(path.join(__dirname, '/public/test.html'));
-  });
+    app.get('/test', function(req, res) {
+        res.sendFile(path.join(__dirname, '/public/test.html'));
+    });
 }
 
 var httpServer = require('http').createServer(app);

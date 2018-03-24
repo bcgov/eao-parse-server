@@ -9,6 +9,14 @@ RUN npm install
 ENV APP_ID setYourAppId
 ENV MASTER_KEY setYourMasterKey
 ENV DATABASE_URI setMongoDBURI
+ENV JAVASCRIPT_KEY setJavascriptKey
+
+ENV PUBLIC_SERVER_URL setPublicServerUrl
+
+ENV MAIL_SERVER_USER setMailServerUser
+ENV MAIL_SERVER_PASSWORD setMailServerPassword
+ENV MAIL_SERVER_HOST setMailServerHost
+ENV MAIL_SERVER_PORT setMailServerPort
 
 # Optional (default : 'parse/cloud/main.js')
 # ENV CLOUD_CODE_MAIN cloudCodePath
