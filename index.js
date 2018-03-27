@@ -46,11 +46,9 @@ var api = new ParseServer({
         classNames: ["Posts", "Comments"] // List of classes to support for query subscriptions
     },
     emailAdapter: {
-        module: "simple-parse-smtp-adapter",
+        module: "simple-parse-smtp-no-auth-adapter",
         options: {
             fromAddress: mailServer.fromAddress,
-            user: mailServer.user,
-            password: mailServer.password,
             host: mailServer.host,
             isSSL: mailServer.isSSL, //True or false if you are using ssl 
             port: mailServer.port, //SSL port or another port 
