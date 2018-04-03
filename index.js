@@ -23,6 +23,7 @@ var mailServer = {
     host: process.env.MAIL_SERVER_HOST,
     port: process.env.MAIL_SERVER_PORT || 25,
     isSSL: process.env.MAIL_SERVER_SSL || false,
+    isTlsRejectUnauthorized: process.env.MAIL_SERVER_TLS_REJECT_UNAUTHORIZED || true,
     emailField: process.env.EMAIL_FIELD || 'email',
 }
 
@@ -50,7 +51,8 @@ var api = new ParseServer({
         options: {
             fromAddress: mailServer.fromAddress,
             host: mailServer.host,
-            isSSL: mailServer.isSSL, //True or false if you are using ssl 
+            isSSL: mailServer.isSSL, //True or false if you are using ssl
+            isTlsRejectUnauthorized: mailServer.isTlsRejectUnauthorized,
             port: mailServer.port, //SSL port or another port 
             //Somtimes the user email is not in the 'email' field, the email is search first in 
             //email field, then in username field, if you have the user email in another field 
@@ -64,7 +66,7 @@ var api = new ParseServer({
                     //Subject for this email 
                     subject: 'Reset your password'
                 }
-            }
+            },
         }
     }
 });
@@ -103,7 +105,6 @@ if (!isProduction) {
         res.status(200).send('Your installation of parse-server is complete!');
     });
 }
-
 
 // There will be a test page available on the /test path of your server url
 // Remove this before launching your app
