@@ -2,6 +2,7 @@ var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 var ParseDashboard = require('parse-dashboard');
 var path = require('path');
+var bodyParser = require('body-parser');
 
 var port = process.env.PORT || 1337;
 var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/parse';
@@ -12,7 +13,7 @@ var publicServerURL = process.env.PUBLIC_SERVER_URL || 'http://localhost:1337/pa
 var appId = process.env.APP_ID || 'myAppId';
 var masterKey = process.env.MASTER_KEY || 'abc123';
 var appName = process.env.PARSE_APP_NAME || 'parse-server';
-var maxUploadSize = process.env.MAX_UPLOAD_SIZE || '20mb';
+var maxUploadSize = process.env.MAX_UPLOAD_SIZE || '1mb';
 var javascriptKey = process.env.JAVASCRIPT_KEY || 'javascript_key';
 var userJsonString = process.env.USERS_JSON || '[{"user": "test", "pass": "test"}]';
 
@@ -23,6 +24,7 @@ var mailServer = {
     host: process.env.MAIL_SERVER_HOST,
     port: process.env.MAIL_SERVER_PORT || 25,
     isSSL: process.env.MAIL_SERVER_SSL || false,
+    isTlsRejectUnauthorized: process.env.MAIL_SERVER_TLS_REJECT_UNAUTHORIZED || true,
     emailField: process.env.EMAIL_FIELD || 'email',
 }
 
@@ -50,7 +52,8 @@ var api = new ParseServer({
         options: {
             fromAddress: mailServer.fromAddress,
             host: mailServer.host,
-            isSSL: mailServer.isSSL, //True or false if you are using ssl 
+            isSSL: mailServer.isSSL, //True or false if you are using ssl
+            isTlsRejectUnauthorized: mailServer.isTlsRejectUnauthorized,
             port: mailServer.port, //SSL port or another port 
             //Somtimes the user email is not in the 'email' field, the email is search first in 
             //email field, then in username field, if you have the user email in another field 
@@ -64,7 +67,7 @@ var api = new ParseServer({
                     //Subject for this email 
                     subject: 'Reset your password'
                 }
-            }
+            },
         }
     }
 });
@@ -104,7 +107,6 @@ if (!isProduction) {
     });
 }
 
-
 // There will be a test page available on the /test path of your server url
 // Remove this before launching your app
 if (!isProduction) {
@@ -119,4 +121,4 @@ httpServer.listen(port, function() {
 });
 
 // This will enable the Live Query real-time server
-ParseServer.createLiveQueryServer(httpServer);
+ParseServer.createLiveQueryServer(httpServer)
