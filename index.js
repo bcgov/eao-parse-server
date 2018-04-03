@@ -2,7 +2,6 @@ var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 var ParseDashboard = require('parse-dashboard');
 var path = require('path');
-var bodyParser = require('body-parser');
 
 var port = process.env.PORT || 1337;
 var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/parse';
@@ -13,7 +12,7 @@ var publicServerURL = process.env.PUBLIC_SERVER_URL || 'http://localhost:1337/pa
 var appId = process.env.APP_ID || 'myAppId';
 var masterKey = process.env.MASTER_KEY || 'abc123';
 var appName = process.env.PARSE_APP_NAME || 'parse-server';
-var maxUploadSize = process.env.MAX_UPLOAD_SIZE || '1mb';
+var maxUploadSize = process.env.MAX_UPLOAD_SIZE || '20mb';
 var javascriptKey = process.env.JAVASCRIPT_KEY || 'javascript_key';
 var userJsonString = process.env.USERS_JSON || '[{"user": "test", "pass": "test"}]';
 
@@ -121,4 +120,4 @@ httpServer.listen(port, function() {
 });
 
 // This will enable the Live Query real-time server
-ParseServer.createLiveQueryServer(httpServer)
+ParseServer.createLiveQueryServer(httpServer);
