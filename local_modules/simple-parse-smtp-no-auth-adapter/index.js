@@ -12,13 +12,23 @@ let SimpleParseSmtpAdapter = (adapterOptions) => {
     /**
      * Creates trasporter for send emails without authentication
      */
+    console.log("creating transport for mail server", {
+        host: adapterOptions.host,
+        port: adapterOptions.port,
+        secure: adapterOptions.isSSL,
+        name: adapterOptions.name,
+        tls: {
+            rejectUnauthorized: false
+        }
+    });
+    
     let transporter = nodemailer.createTransport({
         host: adapterOptions.host,
         port: adapterOptions.port,
         secure: adapterOptions.isSSL,
-        name: adapterOptions.name || '127.0.0.1',
+        name: adapterOptions.name, 
         tls: {
-            rejectUnauthorized: adapterOptions.isTlsRejectUnauthorized !== undefined ? adapterOptions.isTlsRejectUnauthorized : true
+            rejectUnauthorized: false
         }
     });
 
@@ -72,6 +82,7 @@ let SimpleParseSmtpAdapter = (adapterOptions) => {
         return new Promise((resolve, reject) => {
             html.render(data, (err, result) => {
                 if (err) {
+                    console.log('html rendering problem');
                     console.log(err)
                     reject(err);
                 } else {
@@ -97,6 +108,7 @@ let SimpleParseSmtpAdapter = (adapterOptions) => {
         return new Promise((resolve, reject) => {
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
+                    console.log('sendMail problem', mailOptions);
                     console.log(error)
                     reject(error);
                 } else {
@@ -127,6 +139,7 @@ let SimpleParseSmtpAdapter = (adapterOptions) => {
             }, (e) => {
 
                 return new Promise((resolve, reject) => {
+                    console.log('password reset error', adapterOptions);
                     console.log(e)
                     reject(e);
                 });
@@ -160,6 +173,7 @@ let SimpleParseSmtpAdapter = (adapterOptions) => {
             }, (e) => {
 
                 return new Promise((resolve, reject) => {
+                    console.log('send verification email error:', adapterOptions);
                     console.log(e);
                     reject(e);
                 });
