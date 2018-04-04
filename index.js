@@ -15,6 +15,7 @@ var appName = process.env.PARSE_APP_NAME || 'parse-server';
 var maxUploadSize = process.env.MAX_UPLOAD_SIZE || '20mb';
 var javascriptKey = process.env.JAVASCRIPT_KEY || 'javascript_key';
 var userJsonString = process.env.USERS_JSON || '[{"user": "test", "pass": "test"}]';
+var filesSubDirectory = process.env.FILES_SUB_DIRECTORY;
 
 var mailServer = {
     fromAddress: process.env.FROM_ADDRESS || 'no-reply@eao.gov.bc.ca',
@@ -67,6 +68,12 @@ var api = new ParseServer({
                     subject: 'Reset your password'
                 }
             },
+        }
+    },
+    "filesAdapter": {
+        "module": "@parse/fs-files-adapter",
+        "options": {
+            "filesSubDirectory": filesSubDirectory // optional
         }
     }
 });
