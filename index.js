@@ -19,6 +19,7 @@ var filesSubDirectory = process.env.FILES_SUB_DIRECTORY;
 
 var mailServer = {
     fromAddress: process.env.FROM_ADDRESS || 'no-reply@eao.gov.bc.ca',
+    name: process.env.MAIL_SERVER_FROM_NAME || 'projects.eao.gov.bc.ca',
     user: process.env.MAIL_SERVER_USER,
     password: process.env.MAIL_SERVER_PASSWORD,
     host: process.env.MAIL_SERVER_HOST,
@@ -51,6 +52,8 @@ var api = new ParseServer({
         module: "simple-parse-smtp-no-auth-adapter",
         options: {
             fromAddress: mailServer.fromAddress,
+            from: mailServer.fromAddress,
+            name: mailServer.name,
             host: mailServer.host,
             isSSL: mailServer.isSSL, //True or false if you are using ssl
             isTlsRejectUnauthorized: mailServer.isTlsRejectUnauthorized,
