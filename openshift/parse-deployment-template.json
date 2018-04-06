@@ -450,6 +450,12 @@
       "displayName": "Parse API route",
       "description": "Configure Parse API route",
       "value": "/parse"
+    },
+    {
+      "name": "HTTP_PARSE_DEPLOY_CONFIG",
+      "displayName": "Parse API nginx override configuration",
+      "description": "Enable injection of nginx configs on the parse_mount route.",
+      "value": "client_max_body_size 500M;"
     }
   ]
 }
