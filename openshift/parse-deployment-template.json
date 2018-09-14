@@ -46,6 +46,10 @@
         "to": {
           "kind": "Service",
           "name": "${NAME}"
+        },
+        "tls": {
+          "termination": "edge",
+          "insecureEdgeTerminationPolicy": "Redirect"
         }
       }
     },
@@ -96,7 +100,7 @@
             "containers": [
               {
                 "name": "parse-server",
-                "image": " ",
+                "image": "${PARSE_SERVER_IMAGE}",
                 "ports": [
                   {
                     "containerPort": 8080
@@ -142,28 +146,90 @@
                   {
                     "name": "PARSE_MOUNT",
                     "value": "${PARSE_MOUNT}"
+                  },
+                  {
+                    "name": "SERVER_URL",
+                    "value": "${SERVER_URL}"
+                  },
+                  {
+                    "name": "MAX_UPLOAD_SIZE",
+                    "value": "${MAX_UPLOAD_SIZE}"
+                  },
+                  {
+                    "name": "MAIL_SERVER_HOST",
+                    "value": "${MAIL_SERVER_HOST}"
+                  },
+                  {
+                    "name": "FROM_ADDRESS",
+                    "value": "${FROM_ADDRESS}"
+                  },
+                  {
+                    "name": "PUBLIC_SERVER_URL",
+                    "value": "${PUBLIC_SERVER_URL}"
+                  },
+                  {
+                    "name": "MAIL_SERVER_USER",
+                    "value": "${MAIL_SERVER_USER}"
+                  },
+                  {
+                    "name": "MAIL_SERVER_PASSWORD",
+                    "value": "${MAIL_SERVER_PASSWORD}"
+                  },
+                  {
+                    "name": "MAIL_SERVER_TLS_REJECT_UNAUTHORIZED",
+                    "value": "${MAIL_SERVER_TLS_REJECT_UNAUTHORIZED}"
+                  },
+                  {
+                    "name": "NODE_TLS_REJECT_UNAUTHORIZED",
+                    "value": "${NODE_TLS_REJECT_UNAUTHORIZED}"
+                  },
+                  {
+                    "name": "USERS_JSON",
+                    "value": "${USERS_JSON}"
+                  },
+                  {
+                    "name": "PRODUCTION_ENV",
+                    "value": "${PRODUCTION_ENV}"
                   }
                 ],
                 "readinessProbe": {
-                  "timeoutSeconds": 3,
-                  "initialDelaySeconds": 3,
+                  "timeoutSeconds": 5,
+                  "initialDelaySeconds": 65,
                   "httpGet": {
-                    "path": "/test",
+                    "path": "/parse-dashboard/login",
                     "port": 8080
                   }
                 },
                 "livenessProbe": {
-                    "timeoutSeconds": 3,
+                    "timeoutSeconds": 5,
                     "initialDelaySeconds": 30,
-                    "httpGet": {
-                        "path": "/test",
+                    "tcpSocket": {
                         "port": 8080
                     }
                 },
                 "resources": {
-                    "limits": {
-                        "memory": "${MEMORY_LIMIT}"
-                    }
+                  "limits": {
+                    "memory": "${MEMORY_LIMIT}",
+                    "cpu": "${CPU_LIMIT}"
+                  },
+                  "request": {
+                    "memory": "${MEMORY_REQUEST}",
+                    "cpu": "${CPU_REQUEST}"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "${NAME}-data",
+                    "mountPath": "/opt/app-root/src/files"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "${NAME}-data",
+                "persistentVolumeClaim": {
+                  "claimName": "${NAME}"
                 }
               }
             ]
@@ -206,6 +272,23 @@
         "resources": {
           "requests": {
             "storage": "${VOLUME_CAPACITY}"
+          }
+        }
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "${VOLUME_CAPACITY_SERVICE}"
           }
         }
       }
@@ -283,7 +366,7 @@
                 ],
                 "readinessProbe": {
                   "timeoutSeconds": 1,
-                  "initialDelaySeconds": 3,
+                  "initialDelaySeconds": 30,
                   "exec": {
                     "command": [ "/bin/sh", "-i", "-c", "mongo 127.0.0.1:27017/$MONGODB_DATABASE -u $MONGODB_USER -p $MONGODB_PASSWORD --eval=\"quit()\""]
                   }
@@ -296,9 +379,14 @@
                   }
                 },
                 "resources": {
-                    "limits": {
-                        "memory": "${MEMORY_MONGODB_LIMIT}"
-                    }
+                  "limits": {
+                      "memory": "${MEMORY_MONGODB_LIMIT}",
+                      "cpu": "${CPU_MONGODB_LIMIT}"
+                  },
+                  "request": {
+                    "memory": "${MEMORY_MONGODB_REQUEST}",
+                    "cpu": "${CPU_MONGODB_REQUEST}"
+                  }
                 },
                 "volumeMounts": [
                   {
@@ -315,7 +403,7 @@
                   "claimName": "${DATABASE_SERVICE_NAME}"
                 }
               }
-]
+            ]
           }
         }
       }
@@ -334,25 +422,74 @@
       "displayName": "Namespace",
       "description": "The OpenShift Namespace where the ImageStream resides.",
       "required": true,
-      "value": "openshift"
+      "value": "esm"
     },
     {
       "name": "MEMORY_LIMIT",
       "displayName": "Memory Limit",
       "description": "Maximum amount of memory the Node.js container can use.",
       "required": true,
-      "value": "512Mi"
+      "value": "256Mi"
+    },
+    {
+      "name": "CPU_LIMIT",
+      "displayName": "CPU Limit",
+      "description": "Maximum amount of CPU the Node.js container can use.",
+      "required": true,
+      "value": "500m"
+    },
+    {
+      "name": "MEMORY_REQUEST",
+      "displayName": "Memory Request",
+      "description": "Request amount of memory the Node.js container can use.",
+      "required": true,
+      "value": "128Mi"
+    },
+    {
+      "name": "CPU_REQUEST",
+      "displayName": "CPU Request",
+      "description": "Request amount of CPU the Node.js container can use.",
+      "required": true,
+      "value": "300m"
     },
     {
       "name": "MEMORY_MONGODB_LIMIT",
       "displayName": "Memory Limit (MongoDB)",
       "description": "Maximum amount of memory the MongoDB container can use.",
       "required": true,
-      "value": "512Mi"
+      "value": "256Mi"
+    },
+    {
+      "name": "MEMORY_MONGODB_REQUEST",
+      "displayName": "Memory Request (MongoDB)",
+      "description": "Request amount of CPU the MongoDB container can use.",
+      "required": true,
+      "value": "128Mi"
+    },
+    {
+      "name": "CPU_MONGODB_LIMIT",
+      "displayName": "CPU Limit (MongoDB)",
+      "description": "Maximum amount of CPU the MongoDB container can use.",
+      "required": true,
+      "value": "200m"
+    },
+    {
+      "name": "CPU_MONGODB_REQUEST",
+      "displayName": "CPU Request (MongoDB)",
+      "description": "Request amount of CPU the MongoDB container can use.",
+      "required": true,
+      "value": "100m"
     },
     {
       "name": "VOLUME_CAPACITY",
-      "displayName": "Volume Capacity",
+      "displayName": "Volume Capacity for Database",
+      "description": "Volume space available for data, e.g. 512Mi, 2Gi",
+      "value": "1Gi",
+      "required": true
+    },
+    {
+      "name": "VOLUME_CAPACITY_SERVICE",
+      "displayName": "Volume Capacity for the parse service",
       "description": "Volume space available for data, e.g. 512Mi, 2Gi",
       "value": "1Gi",
       "required": true
@@ -367,32 +504,14 @@
     {
       "name": "SOURCE_REPOSITORY_REF",
       "displayName": "Git Reference",
-      "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch."
-    },
-    {
-      "name": "CONTEXT_DIR",
-      "displayName": "Context Directory",
-      "description": "Set this to the relative path to your project if it is not in the root of your repository."
+      "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch.",
+      "value": "master"
     },
     {
       "name": "APPLICATION_DOMAIN",
       "displayName": "Application Hostname",
       "description": "The exposed hostname that will route to the Node.js service, if left blank a value will be defaulted.",
-      "value": ""
-    },
-    {
-      "name": "GITHUB_WEBHOOK_SECRET",
-      "displayName": "GitHub Webhook Secret",
-      "description": "A secret string used to configure the GitHub webhook.",
-      "generate": "expression",
-      "from": "[a-zA-Z0-9]{40}"
-    },
-    {
-      "name": "GENERIC_WEBHOOK_SECRET",
-      "displayName": "Generic Webhook Secret",
-      "description": "A secret string used to configure the Generic webhook.",
-      "generate": "expression",
-      "from": "[a-zA-Z0-9]{40}"
+      "value": "parse-server-esm.pathfinder.gov.bc.ca"
     },
     {
       "name": "DATABASE_SERVICE_NAME",
@@ -428,28 +547,94 @@
       "from": "[a-zA-Z0-9]{16}"
     },
     {
-      "name": "NPM_MIRROR",
-      "displayName": "Custom NPM Mirror URL",
-      "description": "The custom NPM mirror URL",
-      "value": ""
-    },
-    {
       "name": "APP_ID",
       "displayName": "App's Unique Identifier",
       "description": "A unique identifier for your app",
-      "value": ""
+      "value": "changeMe"
     },
     {
       "name": "MASTER_KEY",
       "displayName": "Parse Master Key",
       "description": "A key that overrides all permissions. Keep this secret",
-      "value": ""
+      "value": "changeMe"
     },
     {
       "name": "PARSE_MOUNT",
       "displayName": "Parse API route",
       "description": "Configure Parse API route",
       "value": "/parse"
+    },
+    {
+      "name": "MAX_UPLOAD_SIZE",
+      "displayName": "Maximum upload post size",
+      "description": "Maximum upload post size",
+      "value": "100mb"
+    },
+    {
+      "name": "MAIL_SERVER_HOST",
+      "displayName": "Mail server hostname",
+      "description": "What smtp server hostname to use for mail",
+      "value": "apps.smtp.gov.bc.ca"
+    },
+    {
+      "name": "FROM_ADDRESS",
+      "displayName": "Mail from address",
+      "description": "Mail from address",
+      "value": "noreply@projects.eao.gov.bc.ca"
+    },
+    {
+      "name": "SERVER_URL",
+      "displayName": "Server url for parse",
+      "description": "Server url for parse - this should be application hostname + /parse",
+      "value": "https://parse-server-esm.pathfinder.gov.bc.ca/parse"
+    },
+    {
+      "name": "PUBLIC_SERVER_URL",
+      "displayName": "Publically accessible server url for parse",
+      "description": "Publically accessible server url for parse - this should be application hostname + /parse",
+      "value": "https://parse-server-esm.pathfinder.gov.bc.ca/parse"
+    },
+    {
+      "name": "MAIL_SERVER_USER",
+      "displayName": "Mail SMTP username",
+      "description": "Mail SMTP username",
+      "value": "user"
+    },
+    {
+      "name": "MAIL_SERVER_PASSWORD",
+      "displayName": "Mail SMTP password",
+      "description": "Mail SMTP password",
+      "value": "password"
+    },
+    {
+      "name": "MAIL_SERVER_TLS_REJECT_UNAUTHORIZED",
+      "displayName": "Mail server tls reject unauthorized flag.",
+      "description": "Mail server tls reject unauthorized flag.",
+      "value": "false"
+    },
+    {
+      "name": "NODE_TLS_REJECT_UNAUTHORIZED",
+      "displayName": "NodeJS tls reject unauthorized flag.",
+      "description": "NodeJS tls reject unauthorized flag.",
+      "value": "'0'"
+    },
+    {
+      "name": "USERS_JSON",
+      "displayName": "Default users to load in parse.",
+      "description": "Default users to load in parse.",
+      "value": '[{"user": "test", "pass": "test"}]'
+    },
+    {
+      "name": "PRODUCTION_ENV",
+      "displayName": "Branding flag on parse web service.",
+      "description": "Branding flag on parse web service.",
+      "value": "false"
+    },
+    {
+      "name": "PARSE_SERVER_IMAGE",
+      "displayName": "image-name of the parse server.",
+      "description": "image-name of the parse server.",
+      "value": "parse-server"
     }
   ]
 }
