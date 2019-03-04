@@ -38,16 +38,15 @@
           "git": {
             "uri": "${SOURCE_REPOSITORY_URL}",
             "ref": "${SOURCE_REPOSITORY_REF}"
-          },
-          "contextDir": "${CONTEXT_DIR}"
+          }
         },
         "strategy": {
           "type": "Source",
           "sourceStrategy": {
             "from": {
               "kind": "ImageStreamTag",
-              "namespace": "${NAMESPACE}",
-              "name": "nodejs:4"
+              "namespace": "${BUILDER_IMAGE_NAMESPACE}",
+              "name": "${BUILDER_IMAGE_NAME}:${BUILDER_IMAGE_TAG}"
             },
             "env":  [
               {
@@ -98,32 +97,25 @@
       "value": "parse-server"
     },
     {
-      "name": "NAMESPACE",
-      "displayName": "Namespace",
-      "description": "The OpenShift Namespace where the ImageStream resides.",
+      "name": "BUILDER_IMAGE_NAME",
+      "displayName": "Builder Image Name",
+      "description": "The name of the image to be used as builder image.",
+      "required": true,
+      "value": "nodejs"
+    },
+    {
+      "name": "BUILDER_IMAGE_TAG",
+      "displayName": "Builder Image Tag",
+      "description": "The tag version of the image to be used as builder image.",
+      "required": true,
+      "value": "8"
+    },
+    {
+      "name": "BUILDER_IMAGE_NAMESPACE",
+      "displayName": "Builder Image Namespace",
+      "description": "The OpenShift Namespace where the builder image resides.",
       "required": true,
       "value": "openshift"
-    },
-    {
-      "name": "MEMORY_LIMIT",
-      "displayName": "Memory Limit",
-      "description": "Maximum amount of memory the Node.js container can use.",
-      "required": true,
-      "value": "512Mi"
-    },
-    {
-      "name": "MEMORY_MONGODB_LIMIT",
-      "displayName": "Memory Limit (MongoDB)",
-      "description": "Maximum amount of memory the MongoDB container can use.",
-      "required": true,
-      "value": "512Mi"
-    },
-    {
-      "name": "VOLUME_CAPACITY",
-      "displayName": "Volume Capacity",
-      "description": "Volume space available for data, e.g. 512Mi, 2Gi",
-      "value": "1Gi",
-      "required": true
     },
     {
       "name": "SOURCE_REPOSITORY_URL",
@@ -136,17 +128,6 @@
       "name": "SOURCE_REPOSITORY_REF",
       "displayName": "Git Reference",
       "description": "Set this to a branch name, tag or other ref of your repository if you are not using the default branch."
-    },
-    {
-      "name": "CONTEXT_DIR",
-      "displayName": "Context Directory",
-      "description": "Set this to the relative path to your project if it is not in the root of your repository."
-    },
-    {
-      "name": "APPLICATION_DOMAIN",
-      "displayName": "Application Hostname",
-      "description": "The exposed hostname that will route to the Node.js service, if left blank a value will be defaulted.",
-      "value": ""
     },
     {
       "name": "GITHUB_WEBHOOK_SECRET",
@@ -163,67 +144,10 @@
       "from": "[a-zA-Z0-9]{40}"
     },
     {
-      "name": "DATABASE_SERVICE_NAME",
-      "displayName": "Database Service Name",
-      "required": true,
-      "value": "parse-mongodb"
-    },
-    {
-      "name": "DATABASE_USER",
-      "displayName": "MongoDB Username",
-      "description": "Username for MongoDB user that will be used for accessing the database.",
-      "generate": "expression",
-      "from": "user[A-Z0-9]{3}"
-    },
-    {
-      "name": "DATABASE_PASSWORD",
-      "displayName": "MongoDB Password",
-      "description": "Password for the MongoDB user.",
-      "generate": "expression",
-      "from": "[a-zA-Z0-9]{16}"
-    },
-    {
-      "name": "DATABASE_NAME",
-      "displayName": "Database Name",
-      "required": true,
-      "value": "parse"
-    },
-    {
-      "name": "DATABASE_ADMIN_PASSWORD",
-      "displayName": "Database Administrator Password",
-      "description": "Password for the database admin user.",
-      "generate": "expression",
-      "from": "[a-zA-Z0-9]{16}"
-    },
-    {
       "name": "NPM_MIRROR",
       "displayName": "Custom NPM Mirror URL",
       "description": "The custom NPM mirror URL",
       "value": ""
-    },
-    {
-      "name": "APP_ID",
-      "displayName": "App's Unique Identifier",
-      "description": "A unique identifier for your app",
-      "value": ""
-    },
-    {
-      "name": "MASTER_KEY",
-      "displayName": "Parse Master Key",
-      "description": "A key that overrides all permissions. Keep this secret",
-      "value": ""
-    },
-    {
-      "name": "PARSE_MOUNT",
-      "displayName": "Parse API route",
-      "description": "Configure Parse API route",
-      "value": "/parse"
-    },
-    {
-      "name": "SERVER_URL",
-      "displayName": "Parse Web Facing URL",
-      "description": "The endpoint to which parse URL is posted.",
-      "value": "https://parse-ssl.esm-dev.pathfinder.gov.bc.ca/parse"
     }
   ]
 }
