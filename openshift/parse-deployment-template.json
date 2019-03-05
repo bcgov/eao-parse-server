@@ -2,7 +2,7 @@
   "kind": "Template",
   "apiVersion": "v1",
   "metadata": {
-    "name": "parse-server",
+    "name": "${NAME}",
     "annotations": {
       "description": "Parse API server using the parse-server module",
       "tags": "nodejs,parse",
@@ -72,12 +72,12 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "parse-server"
+                "${NAME}"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "namespace": "${NAMESPACE}",
-                "name": "${NAME}:test"
+                "namespace": "${PARSE_IMAGE_NAMESPACE}",
+                "name": "${PARSE_SERVER_IMAGE}:${PARSE_TAG_NAME}"
               }
             }
           },
@@ -99,7 +99,7 @@
           "spec": {
             "containers": [
               {
-                "name": "parse-server",
+                "name": "${NAME}",
                 "image": "${PARSE_SERVER_IMAGE}",
                 "ports": [
                   {
@@ -271,7 +271,7 @@
         ],
         "resources": {
           "requests": {
-            "storage": "${VOLUME_CAPACITY}"
+            "storage": "${MONGODB_VOLUME_CAPACITY}"
           }
         }
       }
@@ -316,8 +316,8 @@
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "namespace": "openshift",
-                "name": "mongodb:3.2"
+                "namespace": "${DATABASE_IMAGE_NAMESPACE}",
+                "name": "${DATABASE_IMAGE_NAME}:${DATABASE_IMAGE_TAG}"
               }
             }
           },
@@ -418,11 +418,24 @@
       "value": "parse-server"
     },
     {
-      "name": "NAMESPACE",
+      "name": "PARSE_SERVER_IMAGE",
+      "displayName": "image-name of the parse server.",
+      "description": "image-name of the parse server.",
+      "value": "parse-server"
+    },
+    {
+      "name": "PARSE_TAG_NAME",
+      "displayName": "Environment TAG name",
+      "description": "The TAG name for this environment, e.g., dev, test, prod",
+      "required": true,
+      "value": "dev"
+    },
+    {
+      "name": "PARSE_IMAGE_NAMESPACE",
       "displayName": "Namespace",
       "description": "The OpenShift Namespace where the ImageStream resides.",
       "required": true,
-      "value": "esm"
+      "value": "eao-iuc-tools"
     },
     {
       "name": "MEMORY_LIMIT",
@@ -481,10 +494,10 @@
       "value": "100m"
     },
     {
-      "name": "VOLUME_CAPACITY",
+      "name": "MONGODB_VOLUME_CAPACITY",
       "displayName": "Volume Capacity for Database",
       "description": "Volume space available for data, e.g. 512Mi, 2Gi",
-      "value": "1Gi",
+      "value": "5Gi",
       "required": true
     },
     {
@@ -511,7 +524,26 @@
       "name": "APPLICATION_DOMAIN",
       "displayName": "Application Hostname",
       "description": "The exposed hostname that will route to the Node.js service, if left blank a value will be defaulted.",
-      "value": "parse-server-esm.pathfinder.gov.bc.ca"
+      "value": "parse-server-eao-iuc-dev.pathfinder.gov.bc.ca"
+    },
+    {
+      "name": "DATABASE_IMAGE_NAME",
+      "displayName": "Database Image Name",
+      "required": true,
+      "value": "mongodb"
+    },
+    {
+      "name": "DATABASE_IMAGE_TAG",
+      "displayName": "Database Image Tag",
+      "required": true,
+      "value": "3.2"
+    },
+    {
+      "name": "DATABASE_IMAGE_NAMESPACE",
+      "displayName": "Namespace",
+      "description": "The OpenShift Namespace where the ImageStream resides.",
+      "required": true,
+      "value": "openshift"
     },
     {
       "name": "DATABASE_SERVICE_NAME",
@@ -586,13 +618,13 @@
       "name": "SERVER_URL",
       "displayName": "Server url for parse",
       "description": "Server url for parse - this should be application hostname + /parse",
-      "value": "https://parse-server-esm.pathfinder.gov.bc.ca/parse"
+      "value": "https://parse-server-eao-iuc-dev.pathfinder.gov.bc.ca/parse"
     },
     {
       "name": "PUBLIC_SERVER_URL",
       "displayName": "Publically accessible server url for parse",
       "description": "Publically accessible server url for parse - this should be application hostname + /parse",
-      "value": "https://parse-server-esm.pathfinder.gov.bc.ca/parse"
+      "value": "https://parse-server-eao-iuc-dev.pathfinder.gov.bc.ca/parse"
     },
     {
       "name": "MAIL_SERVER_USER",
@@ -622,19 +654,13 @@
       "name": "USERS_JSON",
       "displayName": "Default users to load in parse.",
       "description": "Default users to load in parse.",
-      "value": '[{"user": "test", "pass": "test"}]'
+      "value": "[{\"user\": \"test\", \"pass\": \"test\"}]"
     },
     {
       "name": "PRODUCTION_ENV",
       "displayName": "Branding flag on parse web service.",
       "description": "Branding flag on parse web service.",
       "value": "false"
-    },
-    {
-      "name": "PARSE_SERVER_IMAGE",
-      "displayName": "image-name of the parse server.",
-      "description": "image-name of the parse server.",
-      "value": "parse-server"
     }
   ]
 }
