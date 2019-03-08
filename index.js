@@ -1,3 +1,4 @@
+var cors = require('cors');
 var express = require('express');
 var ParseServer = require('parse-server').ParseServer;
 var ParseDashboard = require('parse-dashboard');
@@ -100,6 +101,7 @@ var dashboard = new ParseDashboard({
 // javascriptKey, restAPIKey, dotNetKey, clientKey
 
 var app = express();
+app.use(cors()); //enable CORS
 
 // Serve static assets from the /public folder
 app.use('/public', express.static(path.join(__dirname, '/public')));
