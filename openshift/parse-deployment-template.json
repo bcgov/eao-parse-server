@@ -536,7 +536,7 @@
       "name": "DATABASE_IMAGE_TAG",
       "displayName": "Database Image Tag",
       "required": true,
-      "value": "3.2"
+      "value": "3.4"
     },
     {
       "name": "DATABASE_IMAGE_NAMESPACE",
