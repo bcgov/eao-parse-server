@@ -1,21 +1,25 @@
 {
-    "dependencies": {
-        "email-templates": "^2.4.1",
-        "jade": "^1.11.0",
-        "less": "^2.7.1",
-        "nodemailer": "^2.5.0",
-        "path": "^0.12.7"
-    },
-    "description": "Send custom emails from parse with SMTP access",
-    "devDependencies": {},
-    "directories": {},
-    "license": "MIT",
-    "main": "index.js",
-    "name": "simple-parse-smtp-no-auth-adapter",
-    "optionalDependencies": {},
-    "scripts": {
-        "start": "node index.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "version": "1.0.0"
+  "dependencies": {
+    "email-templates": "^2.4.1",
+    "jade": "^1.11.0",
+    "less": "^2.7.1",
+    "nodemailer": "^2.5.0",
+    "path": "^0.12.7",
+    "snyk": "^1.189.0"
+  },
+  "description": "Send custom emails from parse with SMTP access",
+  "devDependencies": {},
+  "directories": {},
+  "license": "MIT",
+  "main": "index.js",
+  "name": "simple-parse-smtp-no-auth-adapter",
+  "optionalDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "version": "1.0.0",
+  "snyk": true
 }
